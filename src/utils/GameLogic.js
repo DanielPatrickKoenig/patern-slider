@@ -152,4 +152,13 @@ function getPiece(){
     console.log(allPieces[Math.floor(Math.random() * allPieces.length)]);
     return allPieces[Math.floor(Math.random() * allPieces.length)];
 }
-export {setupGame, pieces, dropPiece, getPiece};
+function getPiecesByProperty(pieces, property, value){
+    let matches = [];
+    for(let i = 0; i < pieces.length; i++){
+        if(pieces[i][property] == value){
+            matches.push(pieces[i]);
+        }
+    }
+    return matches;
+}
+export {setupGame, pieces, dropPiece, getPiece, getPiecesByProperty};
