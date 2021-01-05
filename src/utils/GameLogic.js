@@ -68,9 +68,7 @@ function checkMatch(targetPattern, testPesstern){
     let isMatch = true;
     for(let i = 0; i < targetPattern.length; i++){
         for(let j = 0; j < targetPattern[i].length; j++){
-            const bpthEmpty = targetPattern[i][j] < 1 && testPesstern[i][j] < 1;
-            const bothFull = targetPattern[i][j] > 0 && testPesstern[i][j] > 0;
-            if((bpthEmpty && !bothFull) || (!bpthEmpty && bothFull)){
+            if(targetPattern[i][j].toString().split('.')[0] != testPesstern[i][j].toString().split('.')[0]){
                 isMatch = false;
             }
         }
