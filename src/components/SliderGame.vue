@@ -1,6 +1,6 @@
 <template>
   <div>
-      <canvas ref="pixiTarget" />
+      <canvas ref="pixiTarget" style="max-width:100%;" />
   </div>
 </template>
 
