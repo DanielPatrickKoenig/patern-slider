@@ -94,8 +94,9 @@ function PixiAction(supressMobile){
                 handler(processEvent(e), displayObject);
             }
         });
-        if(supressMobile){
+        if(!supressMobile){
             displayObject.on('touchstart', (e) => {
+                console.log(e);
                 if(handler){
                     handler(processEvent(e), displayObject);
                 }
@@ -109,7 +110,7 @@ function PixiAction(supressMobile){
                 handler(processEvent(e), displayObject);
             }
         });
-        if(supressMobile){
+        if(!supressMobile){
             displayObject.on('touchmove', (e) => {
                 if(handler){
                     handler(processEvent(e), displayObject);
@@ -129,7 +130,7 @@ function PixiAction(supressMobile){
                 handler(processEvent(e), displayObject);
             }
         });
-        if(supressMobile){
+        if(!supressMobile){
             displayObject.on('touchend', (e) => {
                 if(handler){
                     handler(processEvent(e), displayObject);
