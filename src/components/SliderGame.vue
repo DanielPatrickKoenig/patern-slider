@@ -40,15 +40,17 @@ export default {
         // },
         moveGroup (property, e, space) {
             // const group = getPiecesByProperty(this.pieces, direction, this.dragger[direction]);
+            const groupSize = property == 'x' ? this.pattern[0].length : this.pattern.length;
+            // console.log(groupSize);
             for(let i = 0; i < this.dragGroup.length; i++){
                 this.dragGroup[i][property] = e[property] - this.offset[property] - this.dragOffsets[i][property];
-                if(this.dragGroup[i][property] > this.startCenters[this.structure.length - 1][property]){
+                if(this.dragGroup[i][property] > this.startCenters[groupSize - 1][property]){
                     // this.dragGroup[i][property] -= space * this.structure.length;
-                    this.dragOffsets[i][property] += space * this.structure.length;
+                    this.dragOffsets[i][property] += space * groupSize;
                 }
                 if(this.dragGroup[i][property] < this.startCenters[0][property] - space){
                     // this.dragGroup[i][property] += space * this.structure.length;
-                    this.dragOffsets[i][property] -= space * this.structure.length;
+                    this.dragOffsets[i][property] -= space * groupSize;
                 }
             }
         },
@@ -71,7 +73,7 @@ export default {
             for(let i = 0; i < this.pieces.length; i++){
                 userPattern.push(this.pieces[i].status);
             }
-            return reshape(userPattern, this.pattern.length);
+            return reshape(userPattern, this.pattern[0].length);
         }
     },
     mounted () {
@@ -88,11 +90,13 @@ export default {
                 sprite.addChild(empty);
                 const full = this.draw.circle({fill: 0x00cc00, radius: space/2, x: space/2, y: space/2});
                 sprite.addChild(full);
-                empty.visible = this.structure[i][j] == 0;
-                full.visible = this.structure[i][j] == 1;
+                const text = this.utils.text(this.structure[i][j], {fontSize: 14})
+                sprite.addChild(text);
+                empty.visible = this.structure[i][j] == 0 || this.structure[i][j] == ' ';
+                full.visible = this.structure[i][j] != 0 && this.structure[i][j] != ' ';
                 this.pieces.push(sprite);
                 sprite.x = this.originPoint.x + (space*h);
-                sprite.y = this.originPoint.x + (space*v);
+                sprite.y = this.originPoint.y + (space*v);
                 sprite.h = h;
                 sprite.v = v;
                 sprite.status = this.structure[i][j];
@@ -137,16 +141,18 @@ export default {
                         const sortedDragGroup = dragPragPropertyList.sort((a, b) => (a[sortProp] > b[sortProp]) ? 1 : -1);
                         for(let i = 0; i < this.dragGroup.length; i++){
                             this.dragGroup[i].status = sortedDragGroup[i].status;
+                            console.log(this.dragGroup[i].status);
                             this.dragGroup[i].x = this.startCenters[i].x - (space / 2);
                             this.dragGroup[i].y = this.startCenters[i].y - (space / 2);
                             const empty = this.dragGroup[i].children[0];
                             const full = this.dragGroup[i].children[1];
-                            empty.visible = this.dragGroup[i].status == 0;
-                            full.visible = this.dragGroup[i].status == 1;
+                            this.dragGroup[i].children[2].text = this.dragGroup[i].status;
+                            empty.visible = this.dragGroup[i].status == 0 || this.dragGroup[i].status == ' ';
+                            full.visible = this.dragGroup[i].status == 1 || this.dragGroup[i].status != ' ';
                         }
                     }
-                    console.log(this.renderStructure());
-                    console.log(this.pattern);
+                    // console.log(this.renderStructure());
+                    // console.log(this.pattern);
                     console.log(checkMatch(this.renderStructure(), this.pattern));
                 });
                 h++;

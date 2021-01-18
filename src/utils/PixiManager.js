@@ -1,4 +1,24 @@
 import * as PIXI from 'pixi.js';
+const defaultProperties = {
+    fill: 0x000000,
+    stroke: 0x000000,
+    fillOpacity: 1,
+    strokeOpacity: 0,
+    strokeWidth: 0,
+    radius: 12,
+    x: 0,
+    y: 0,
+    fontFamily: 'Arial',
+    fontSize: 12,
+    align: 'center'
+};
+function mapProperites(properties){
+    let props = {};
+    for(let p in defaultProperties){
+        props[p] = properties[p] != undefined && properties[p] != null ? properties[p] : defaultProperties[p];
+    }
+    return props;
+}
 const PixiInstance = function (canvas, width, height, transparent) {
     const app = new PIXI.Application({
         view: canvas,
@@ -11,25 +31,6 @@ const PixiInstance = function (canvas, width, height, transparent) {
     }
 }
 function PixiDraw () {
-
-    const defaultProperties = {
-        fill: 0x000000,
-        stroke: 0x000000,
-        fillOpacity: 1,
-        strokeOpacity: 0,
-        strokeWidth: 0,
-        radius: 12,
-        x: 0,
-        y: 0
-    };
-
-    function mapProperites(properties){
-        let props = {};
-        for(let p in defaultProperties){
-            props[p] = properties[p] != undefined && properties[p] != null ? properties[p] : defaultProperties[p];
-        }
-        return props;
-    }
 
     this.bezierShape = function (path, properties, graphic) {
         let props = mapProperites(properties);
@@ -48,7 +49,7 @@ function PixiDraw () {
 
     this.circle = function (properties, graphic) {
         let props = mapProperites(properties);
-        console.log(props);
+        // console.log(props);
         let g = graphic ? graphic : new PIXI.Graphics();
         g.clear();
         g.beginFill(props.fill,props.fillOpacity);
@@ -70,6 +71,10 @@ function PixiUtils(){
     }
     this.graphic = function(){
         return PIXI.Graphics();
+    }
+    this.text = function(text, properties){
+        let props = mapProperites(properties);
+        return new PIXI.Text(text,{fontFamily : props.fontFamily, fontSize: props.fontSize, fill : props.fill, align : props.align});
     }
 }
 function PixiAction(supressMobile){
@@ -96,7 +101,7 @@ function PixiAction(supressMobile){
         });
         if(!supressMobile){
             displayObject.on('touchstart', (e) => {
-                console.log(e);
+                // console.log(e);
                 if(handler){
                     handler(processEvent(e), displayObject);
                 }
@@ -144,5 +149,6 @@ function PixiAction(supressMobile){
         }
     }
 }
+
 
 export {PixiInstance, PixiDraw, PixiImage, PixiUtils, PixiAction};

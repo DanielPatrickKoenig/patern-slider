@@ -48,6 +48,16 @@ const structures = {
                 [0, 1, 0, 0, 0, 1, 0],
                 [0, 1, 1, 1, 1, 1, 0],
                 [0, 0, 0, 0, 0, 0, 0]
+            ],
+            [
+                [" ", " ", "h", " ", " ", " ", " "],
+                [" ", "w", "a", "t", "e", "r", " "],
+                [" ", " ", "p", " ", "l", " ", " "],
+                ["a", "p", "p", "l", "e", " ", "a"],
+                [" ", " ", "y", " ", "v", "e", "x"],
+                ["a", " ", " ", " ", "e", " ", "e"],
+                ["s", "p", "o", "o", "n", " ", " "],
+                ["k", " ", " ", " ", " ", " ", " "]
             ]
         ]
 };
@@ -83,7 +93,7 @@ function randomizeStructure(structure){
         }
     }
     const suffledStructure = shuffle(oneDStrucure);
-    let reshapedStucture = reshape(suffledStructure, structure.length);
+    let reshapedStucture = reshape(suffledStructure, structure[0].length);
     return reshapedStucture;
     
 }
