@@ -13,7 +13,7 @@
                     v-for="(cell, j) in row" 
                     :key="'cell-'+j.toString()+'-'+i.toString()"
                     :class="{'full-cell': cell > 0}"
-                    :style="{width: `${100/structure.length}%`, height: `${100/structure.length}%`}"
+                    :style="{width: `${100/structure[0].length}%`, height: `${100/structure.length}%`}"
                 >
                     
                 </li>

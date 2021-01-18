@@ -16,7 +16,7 @@ function shuffle(array) {
 
     return array;
 }
-function reshape(list, size){
+function reshape(list, width){
     let reshapedStucture = [];
     let colIndex = 0;
     for(var i = 0; i < list.length; i++){
@@ -25,7 +25,7 @@ function reshape(list, size){
         }
         reshapedStucture[reshapedStucture.length-1].push(list[i]);
         colIndex++;
-        if(colIndex >= size){
+        if(colIndex >= width){
             colIndex = 0;
         }
     }
