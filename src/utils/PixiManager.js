@@ -5,6 +5,8 @@ const defaultProperties = {
     fillOpacity: 1,
     strokeOpacity: 0,
     strokeWidth: 0,
+    width: 72,
+    height: 72,
     radius: 12,
     x: 0,
     y: 0,
@@ -55,6 +57,17 @@ function PixiDraw () {
         g.beginFill(props.fill,props.fillOpacity);
         g.lineStyle(props.strokeWidth,props.stroke,props.strokeOpacity);
         g.drawCircle(props.x, props.y, props.radius);
+        g.endFill();
+        return g;
+    }
+    this.rect = function (properties, graphic) {
+        let props = mapProperites(properties);
+        // console.log(props);
+        let g = graphic ? graphic : new PIXI.Graphics();
+        g.clear();
+        g.beginFill(props.fill,props.fillOpacity);
+        g.lineStyle(props.strokeWidth,props.stroke,props.strokeOpacity);
+        g.drawRect(props.x, props.y, props.width, props.height);
         g.endFill();
         return g;
     }

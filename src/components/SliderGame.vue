@@ -29,7 +29,9 @@ export default {
             startCenters: [],
             offset: {x: 0, y: 0},
             pieces: [],
-            originPoint: {x: 50, y: 50}
+            originPoint: {x: 50, y: 50},
+            boardSize: {width: 500, height: 500},
+            boardBorder: 50
         }
     },
     methods: {
@@ -77,18 +79,19 @@ export default {
         }
     },
     mounted () {
-        this.instance = new PixiInstance(this.$refs.pixiTarget, 500, 500, true);
+        this.instance = new PixiInstance(this.$refs.pixiTarget, this.boardSize.width, this.boardSize.height, true);
         let h = 0;
         let v = 0;
-        const space = 60;
+        const space = (this.boardSize.width - (this.boardBorder * 2)) / this.structure[0].length;
+        this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space)
         for(let i = 0; i < this.structure.length; i++){
             h = 0;
             for(let j = 0; j < this.structure[i].length; j++){
                 const sprite = this.utils.sprite();
                 // const color = this.structure[i][j] == 1 ? 0x00cc00 : 0xcc0000;
-                const empty = this.draw.circle({fill: 0xcc0000, radius: space/2, x: space/2, y: space/2});
+                const empty = this.draw.rect({fill: 0xcc0000, strokeWidth: 1, strokeOpacity: 1, stroke: 0xffffff, width: space, height: space, x: 0, y: 0});
                 sprite.addChild(empty);
-                const full = this.draw.circle({fill: 0x00cc00, radius: space/2, x: space/2, y: space/2});
+                const full = this.draw.rect({fill: 0x00cc00, strokeWidth: 1, strokeOpacity: 1, stroke: 0xffffff, width: space, height: space, x: 0, y: 0});
                 sprite.addChild(full);
                 const text = this.utils.text(this.structure[i][j], {fontSize: 14})
                 sprite.addChild(text);
