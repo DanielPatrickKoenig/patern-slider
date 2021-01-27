@@ -1,6 +1,19 @@
 import {shuffle, reshape} from './Utilities.js';
 const dimensions = {rows: 7, columns: 7};
 
+const Directions = {
+    ACROSS: 0,
+    DOWN: 1
+}
+
+
+const puzzles = [{
+    rows: 7, columns: 8, words: [
+        {text: 'apple', direction: Directions.ACROSS, column: 1, row: 5},
+        {text: 'grape', direction: Directions.DOWN, column: 3, row: 2}
+    ]
+}];
+
 const structures = {
     easy:
         [
@@ -64,7 +77,13 @@ const structures = {
                 [" ", "w", "a", "t", "e", "r", " "],
                 [" ", " ", " ", " ", " ", " ", " "]
             ]
-        ]
+        ],
+    medium: [
+        {
+            puzzle: createCrossword(puzzles[0].rows, puzzles[0].columns, puzzles[0].words),
+            overlay: puzzles[0]
+        }
+    ]
 };
 
 function createRow(structure, targetRow = -1, empty = false){
@@ -118,4 +137,46 @@ function getPiecesByProperty(pieces, property, value){
     }
     return matches;
 }
-export {setupGame, getPiecesByProperty, structures, randomizeStructure, checkMatch};
+function addWord(grid, text, direction, column, row){
+    let valid = true;
+    let move = {row: 0, column: 0};
+    switch (direction){
+        case Directions.ACROSS:
+            {
+                move.column = 1;
+                break;
+            }
+        case Directions.DOWN:
+            {
+                move.row = 1;
+                break;
+            }
+    }
+    const letters = text.split('');
+    for(let i = 0; i < letters.length; i++){
+        if(grid[row + (i * move.row)][column + (i * move.column)] == ' ' || grid[row + (i * move.row)][column + (i * move.column)] == letters[i]){
+            grid[row + (i * move.row)][column + (i * move.column)] = letters[i];
+        }
+        else{
+            valid = false;
+        }
+    }
+    return valid;
+}
+function createCrossword(rows, columns, wordList){
+    let valid = true;
+    let grid = [];
+    for(let i = 0; i < rows; i++){
+        grid.push([]);
+        for(let j = 0; j < columns; j++){
+            grid[i].push(' ');
+        }
+    }
+    for(let i = 0; i < wordList.length; i++){
+        if(!addWord(grid, wordList[i].text, wordList[i].direction, wordList[i].column, wordList[i].row)){
+            valid = false;
+        }
+    }
+    return valid ? grid : valid;
+}
+export {setupGame, getPiecesByProperty, structures, randomizeStructure, checkMatch, createCrossword, Directions};

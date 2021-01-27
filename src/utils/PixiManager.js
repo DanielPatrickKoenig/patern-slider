@@ -87,7 +87,7 @@ function PixiUtils(){
     }
     this.text = function(text, properties){
         let props = mapProperites(properties);
-        return new PIXI.Text(text,{fontFamily : props.fontFamily, fontSize: props.fontSize, fill : props.fill, align : props.align});
+        return new PIXI.Text(text,{fontFamily : props.fontFamily, fontSize: props.fontSize, fill: props.fill, align: props.align, wordWrapWidth: props.width});
     }
 }
 function PixiAction(supressMobile){
