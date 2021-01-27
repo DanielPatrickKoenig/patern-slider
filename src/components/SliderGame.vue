@@ -6,11 +6,12 @@
 
 <script>
 import {PixiInstance, PixiDraw, PixiUtils, PixiAction} from '../utils/PixiManager.js';
-import {getPiecesByProperty, randomizeStructure, checkMatch} from '../utils/GameLogic.js';
+import {getPiecesByProperty, randomizeStructure, checkMatch, Directions} from '../utils/GameLogic.js';
 import {reshape} from '../utils/Utilities.js';
 export default {
     props:{
-        pattern: Array
+        pattern: Array,
+        overlay: Object
     },
     data () {
         return {
@@ -82,19 +83,52 @@ export default {
         this.instance = new PixiInstance(this.$refs.pixiTarget, this.boardSize.width, this.boardSize.height, true);
         let h = 0;
         let v = 0;
+        let inset = 3;
         const space = (this.boardSize.width - (this.boardBorder * 2)) / this.structure[0].length;
-        this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space)
+        this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space);
+        const puzzleBG = this.draw.rect({fill: 0x000000, fillOpacity: .35, strokeWidth: 0, strokeOpacity: 0, stroke: 0x000000, width: this.overlay.columns * space, height: this.overlay.rows * space, x: this.originPoint.x, y: this.originPoint.y});
+        this.instance.getApp().stage.addChild(puzzleBG);
+        for(let i = 0; i < this.overlay.words.length; i++){
+            const wordLength = this.overlay.words[i].text.length;
+            let move = {x: 0, y: 0};
+            switch(this.overlay.words[i].direction){
+                case Directions.ACROSS:
+                    {
+                        move.x = 1;
+                        break;
+                    }
+                case Directions.DOWN:
+                    {
+                        move.y = 1;
+                        break;
+                    }
+            }
+            for(let j = 0; j < wordLength; j++){
+                const sprite = this.utils.sprite();
+                sprite.x = this.originPoint.x + (space*(this.overlay.words[i].column + (j * move.x)));
+                sprite.y = this.originPoint.y + (space*(this.overlay.words[i].row + (j * move.y)));
+                const wordStart = this.draw.rect({fill: j == 0 ? 0xfffc2a : 0xffffff, fillOpacity: 1, strokeWidth: 2, strokeOpacity: 1, stroke: 0x000000, width: space, height: space, x: 0, y: 0});
+                sprite.addChild(wordStart);
+                this.instance.getApp().stage.addChild(sprite);
+            }
+
+        }
         for(let i = 0; i < this.structure.length; i++){
             h = 0;
             for(let j = 0; j < this.structure[i].length; j++){
                 const sprite = this.utils.sprite();
                 // const color = this.structure[i][j] == 1 ? 0x00cc00 : 0xcc0000;
-                const empty = this.draw.rect({fill: 0xcc0000, strokeWidth: 1, strokeOpacity: 1, stroke: 0xffffff, width: space, height: space, x: 0, y: 0});
+                const empty = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(empty);
-                const full = this.draw.rect({fill: 0x00cc00, strokeWidth: 1, strokeOpacity: 1, stroke: 0xffffff, width: space, height: space, x: 0, y: 0});
+                const full = this.draw.rect({fill: 0x00cc00, fillOpacity: .8, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(full);
-                const text = this.utils.text(this.structure[i][j], {fontSize: 14})
+                const text = this.utils.text(this.structure[i][j].toUpperCase(), {fontSize: space / 2});
+                text.x = space / 2;
+                text.y = space / 2;
+                text.anchor.set(0.5);
                 sprite.addChild(text);
+                const bg = this.draw.rect({fill: 0x000000, fillOpacity: .000001, strokeWidth: 0, strokeOpacity: 0, stroke: 0xffffff, width: space, height: space, x: 0, y: 0});
+                sprite.addChild(bg);
                 empty.visible = this.structure[i][j] == 0 || this.structure[i][j] == ' ';
                 full.visible = this.structure[i][j] != 0 && this.structure[i][j] != ' ';
                 this.pieces.push(sprite);
@@ -149,7 +183,7 @@ export default {
                             this.dragGroup[i].y = this.startCenters[i].y - (space / 2);
                             const empty = this.dragGroup[i].children[0];
                             const full = this.dragGroup[i].children[1];
-                            this.dragGroup[i].children[2].text = this.dragGroup[i].status;
+                            this.dragGroup[i].children[2].text = this.dragGroup[i].status.toUpperCase();
                             empty.visible = this.dragGroup[i].status == 0 || this.dragGroup[i].status == ' ';
                             full.visible = this.dragGroup[i].status == 1 || this.dragGroup[i].status != ' ';
                         }
@@ -162,6 +196,7 @@ export default {
             }
             v++;
         }
+        
     }
 }
 </script>

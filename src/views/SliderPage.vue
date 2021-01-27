@@ -3,11 +3,11 @@
       <a 
         v-for="(s, i) in structures" 
         :key="'structure-'+i.toString()" 
-        v-on:click="selectedPattern = s"
+        v-on:click="selectedPattern = s.puzzle; selectedOverlay = s.overlay"
     >
-        <PuzzlePattern :structure="s" />
+        <PuzzlePattern :structure="s.puzzle" />
     </a>
-      <SliderGame v-if="selectedPattern" :pattern="selectedPattern" />
+      <SliderGame v-if="selectedPattern" :pattern="selectedPattern" :overlay="selectedOverlay" />
   </div>
 </template>
 
@@ -22,8 +22,9 @@ export default {
     },
     data () {
         return {
-            structures: structures.easy,
-            selectedPattern: null
+            structures: structures.medium,
+            selectedPattern: null,
+            selectedOverlay: null
         }
     }
 }
