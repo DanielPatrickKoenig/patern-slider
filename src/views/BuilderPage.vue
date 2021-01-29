@@ -1,19 +1,27 @@
 <template>
-    <div>
-        <div v-if="ready">
-        <input v-model="searchTerm" type="text" v-on:keyup="searchResults" />
-        <ul v-if="searchTerm != ''">
-            <li v-for="(result, key, i) in searchOutput" :key="'result-'+i.toString()">
-                <ul>
-                    <li>
-                        {{result.word}}
-                    </li>
-                    <li>
-                        {{result.defenition}}
-                    </li>
-                </ul>
+    <div class="builder-page">
+        <select class="letter-select" v-model="selectedLetter" v-on:change="loadLetter(selectedLetter)">
+            <option v-for="(letter, i) in letters" :key="'letter-option-'+i.toString()" :value="letter">{{letter}}</option>
+        </select>
+        <ul class="letter-list">
+            <li v-for="(letter, i) in letters" :key="'letter-'+i.toString()">
+                <a v-on:click="loadLetter(letter)">{{letter}}</a>
             </li>
         </ul>
+        <div v-if="ready" class="search-ui">
+            <input v-model="searchTerm" type="text" v-on:keyup="searchResults" />
+            <ul v-if="searchTerm != ''">
+                <li v-for="(result, key, i) in searchOutput" :key="'result-'+i.toString()">
+                    <ul>
+                        <li>
+                            {{result.word}}
+                        </li>
+                        <li>
+                            {{result.defenition}}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </div>
         <span v-if="ready">
             {{Object.keys(this.dictionary).length}}
@@ -29,7 +37,9 @@ export default {
             dictionary: {},
             ready: false,
             searchTerm: '',
-            searchOutput: {}
+            searchOutput: {},
+            letters: ('abcdefghijklmnopqrstuvwxyz').split(''),
+            selectedLetter: 'a'
         }
     },
     methods: {
@@ -44,11 +54,16 @@ export default {
                 }
             }
             this.searchOutput = output;
+        },
+        async loadLetter (letter) {
+            this.ready = false;
+            this.selectedLetter = letter;
+            this.dictionary = await loadDictionarySection(letter.toUpperCase()); 
+            this.ready = true;
         }
     },
-    async mounted () {
-        this.dictionary = await loadDictionarySection('A'); 
-        this.ready = true;
+    mounted () {
+        this.loadLetter('A');
     }
 }
 </script>

@@ -8,9 +8,9 @@ const Directions = {
 
 
 const puzzles = [{
-    rows: 7, columns: 8, words: [
-        {text: 'apple', direction: Directions.ACROSS, column: 1, row: 5},
-        {text: 'grape', direction: Directions.DOWN, column: 3, row: 2}
+    rows: 14, columns: 12, words: [
+        {id: 'A15700', direction: Directions.ACROSS, column: 1, row: 5},
+        {id: 'G7712', direction: Directions.DOWN, column: 3, row: 2}
     ]
 }];
 
@@ -79,10 +79,7 @@ const structures = {
             ]
         ],
     medium: [
-        {
-            puzzle: createCrossword(puzzles[0].rows, puzzles[0].columns, puzzles[0].words),
-            overlay: puzzles[0]
-        }
+        puzzles[0]
     ]
 };
 
