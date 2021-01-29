@@ -1,0 +1,59 @@
+.builder-page{
+    width: 800px;
+    max-width: 100%;
+    margin: 0 auto;
+    .letter-select{
+        @include medium{
+            display:none;
+        }
+    }
+    .letter-list{
+        display:none;
+        @include medium{
+            display:flex;
+            justify-content: space-between;
+            margin:0;
+            padding:0;
+            width: 100%;
+            li{
+                background-color: $main-color;
+                color: $reverse-color;
+                display:inline-flex;
+                width: 1.6em;
+                height: 1.6em;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+        
+    }
+    .search-ui{
+        ul, li{
+            margin:0;
+            padding:0;
+        }
+        > ul{
+            > li{
+                display:block;
+                justify-content: space-between;
+                
+                ul{
+                    display:flex;
+                    li{
+                        display:block;
+                        padding: .5em 0;
+                        box-shadow: 0 1px 0 $accent-color-1;
+                    }
+                    li:first-child{
+                        
+                        width: 25%;
+                    }
+                    li:last-child{
+                        width: 70%;
+                    }
+                }
+                
+            }
+        }
+    }
+}
