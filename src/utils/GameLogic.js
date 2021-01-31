@@ -1,5 +1,4 @@
 import {shuffle, reshape} from './Utilities.js';
-const dimensions = {rows: 7, columns: 7};
 
 const Directions = {
     ACROSS: 0,
@@ -83,17 +82,12 @@ const structures = {
     ]
 };
 
-function createRow(structure, targetRow = -1, empty = false){
+function createRow(columns, structure){
     let row = [];
-    for(let i = 0; i < dimensions.columns; i++){
-        row.push(empty ? 0 : (Math.random() > .8 ? 1 : 0));
+    for(let i = 0; i < columns; i++){
+        row.push(" ");
     }
-    if(structure.length > targetRow || targetRow < 0){
-        structure.splice(targetRow, 0, row);
-    }
-    else{
-        structure.push(row);
-    }
+    structure.push(row);
 }
 function checkMatch(targetPattern, testPesstern){
     let isMatch = true;
@@ -118,10 +112,10 @@ function randomizeStructure(structure){
     return reshapedStucture;
     
 }
-function setupGame(){
+function setupGame(columns, rows){
     let structure = [];
-    for(var i = 0; i < dimensions.rows; i++){
-        createRow(structure);
+    for(var i = 0; i < rows; i++){
+        createRow(columns, structure);
     }
     return structure;
 }
@@ -134,7 +128,9 @@ function getPiecesByProperty(pieces, property, value){
     }
     return matches;
 }
-function addWord(grid, text, direction, column, row){
+function addWord(grid, text, direction, _column, _row){
+    const column = Number(_column);
+    const row = Number(_row);
     let valid = true;
     let move = {row: 0, column: 0};
     switch (direction){
