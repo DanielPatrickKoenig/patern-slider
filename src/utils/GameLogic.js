@@ -166,7 +166,7 @@ function createCrossword(rows, columns, wordList){
         }
     }
     for(let i = 0; i < wordList.length; i++){
-        if(!addWord(grid, wordList[i].text, wordList[i].direction, wordList[i].column, wordList[i].row)){
+        if(!addWord(grid, wordList[i].text.toUpperCase(), wordList[i].direction, wordList[i].column, wordList[i].row)){
             valid = false;
         }
     }

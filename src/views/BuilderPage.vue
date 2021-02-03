@@ -31,8 +31,18 @@
         <span v-if="ready">
             {{Object.keys(this.dictionary).length}}
         </span>
+        <div 
+            v-if="gameProperties.structureErrors.length > 0"
+            class="puzzle-errors"
+        >
+            <PuzzlePreview
+                v-for="(s, i) in gameProperties.structureErrors"
+                :key="'structure-error-'+i.toString()" 
+                :pattern="gameProperties.structureErrors[i]"
+            />
+        </div>
         <PuzzlePreview 
-            v-if="gameProperties.structrue.length > 0" 
+            v-else-if="gameProperties.structrue.length > 0" 
             :pattern="gameProperties.structrue" 
         />
         <ul class="puzzle-word-list">
@@ -76,7 +86,8 @@ export default {
                 words: [],
                 columns: 7,
                 rows: 7,
-                structrue: []
+                structrue: [],
+                structureErrors: []
             }
             
         }
@@ -105,13 +116,21 @@ export default {
             this.updatePuzzle();
         },
         updatePuzzle () {
-            
+            this.gameProperties.structureErrors = [];
             const stru = createCrossword(this.gameProperties.rows, this.gameProperties.columns, this.gameProperties.words);
             console.log(stru);
             if(stru){
                 this.gameProperties.structrue = [];
                 setTimeout(() => {
                     this.gameProperties.structrue = stru;
+                }, 100);
+            }
+            else{
+                setTimeout(() => {
+                    this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, []));
+                    for(let i = 0; i < this.gameProperties.words.length; i++){
+                        this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, [this.gameProperties.words[i]]));
+                    }
                 }, 100);
             }
         },

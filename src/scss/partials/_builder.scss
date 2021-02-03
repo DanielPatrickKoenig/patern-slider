@@ -93,3 +93,14 @@
         
     }
 }
+
+.puzzle-errors{
+    position: relative;
+    .puzzle-preview:not(:first-child){
+        position:absolute;
+        top:0;
+        li{
+            background-color: transparent !important;
+        }
+    }
+}
