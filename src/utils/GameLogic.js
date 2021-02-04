@@ -1,4 +1,4 @@
-import {shuffle, reshape} from './Utilities.js';
+import {shuffle, reshape, flatten} from './Utilities.js';
 
 const Directions = {
     ACROSS: 0,
@@ -101,12 +101,12 @@ function checkMatch(targetPattern, testPesstern){
     return isMatch;
 }
 function randomizeStructure(structure){
-    let oneDStrucure = [];
-    for(let i = 0; i < structure.length; i++){
-        for(let j = 0; j < structure[i].length; j++){
-            oneDStrucure.push(structure[i][j]);
-        }
-    }
+    let oneDStrucure = flatten(structure);
+    // for(let i = 0; i < structure.length; i++){
+    //     for(let j = 0; j < structure[i].length; j++){
+    //         oneDStrucure.push(structure[i][j]);
+    //     }
+    // }
     const suffledStructure = shuffle(oneDStrucure);
     let reshapedStucture = reshape(suffledStructure, structure[0].length);
     return reshapedStucture;

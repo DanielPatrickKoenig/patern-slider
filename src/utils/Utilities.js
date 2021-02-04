@@ -16,6 +16,15 @@ function shuffle(array) {
 
     return array;
 }
+function flatten(list){
+    let oneDStrucure = [];
+    for(let i = 0; i < list.length; i++){
+        for(let j = 0; j < list[i].length; j++){
+            oneDStrucure.push(list[i][j]);
+        }
+    }
+    return oneDStrucure;
+}
 function reshape(list, width){
     let reshapedStucture = [];
     let colIndex = 0;
@@ -41,4 +50,4 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
-export {shuffle, reshape, getParameterByName};
+export {shuffle, reshape, getParameterByName, flatten};

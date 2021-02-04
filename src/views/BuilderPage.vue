@@ -39,6 +39,7 @@
                 v-for="(s, i) in gameProperties.structureErrors"
                 :key="'structure-error-'+i.toString()" 
                 :pattern="gameProperties.structureErrors[i]"
+                :collisions="i == 0 ? gameProperties.errors.collisions : {}"
             />
         </div>
         <PuzzlePreview 
@@ -68,6 +69,7 @@
 <script>
 import {loadDictionarySection} from '../utils/Dictionary.js';
 import {createCrossword, Directions} from '../utils/GameLogic.js';
+// import {flatten} from '../utils/Utilities.js';
 import PuzzlePreview from '../components/PuzzlePreview.vue';
 export default {
     components:{
@@ -87,7 +89,10 @@ export default {
                 columns: 7,
                 rows: 7,
                 structrue: [],
-                structureErrors: []
+                structureErrors: [],
+                errors: {
+                    collisions: {}
+                }
             }
             
         }
@@ -131,8 +136,29 @@ export default {
                     for(let i = 0; i < this.gameProperties.words.length; i++){
                         this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, [this.gameProperties.words[i]]));
                     }
+                    this.gameProperties.errors.collisions = this.getCollisions();
                 }, 100);
             }
+        },
+        getCollisions () {
+            let cells = {};
+            for (let i = 0; i < this.gameProperties.structureErrors.length; i++){
+                for (let j = 0; j < this.gameProperties.structureErrors[i].length; j++) {
+                    
+                    for (let k = 0; k < this.gameProperties.structureErrors[i][j].length; k++) {
+                        if(this.gameProperties.structureErrors[i][j][k] != ' '){
+                            if(cells[`${j}.${k}`] == undefined){
+                                cells[`${j}.${k}`] = [];
+                            }
+                            if(!cells[`${j}.${k}`].includes(this.gameProperties.structureErrors[i][j][k])){
+                                cells[`${j}.${k}`].push(this.gameProperties.structureErrors[i][j][k]);
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            return cells;
         },
         removeWord (index) {
             this.gameProperties.words.splice(index, 1);
