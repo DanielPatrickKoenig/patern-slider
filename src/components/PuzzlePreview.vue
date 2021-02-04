@@ -15,7 +15,7 @@
                         v-for="(cell, j) in row" 
                         :key="'cell-' + i.toString() + '-' + j.toString()"
                         :style="{width: `${100/pattern[i].length}%`}"
-                        :class="{active: cell != ' '}"
+                        :class="{active: cell != ' ' || (collisions && collisions[`${i}.${j}`] && collisions[`${i}.${j}`].length >= 1), error: collisions && collisions[`${i}.${j}`] && collisions[`${i}.${j}`].length >= 2}"
                     > 
                         {{cell.toUpperCase()}}
                     </li>
@@ -28,7 +28,8 @@
 <script>
 export default {
     props: {
-        pattern: Array
+        pattern: Array,
+        collisions: null
     },
     data () {
         return {
