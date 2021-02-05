@@ -51,9 +51,9 @@
             <li><label><span>Rows</span> <input type="number" v-model="gameProperties.rows" v-on:change="updatePuzzle" /></label></li>
             <li v-for="(word, i) in gameProperties.words" :key="'word-'+i.toString()">
                 <label><span>Text</span> <input type="text" v-model="gameProperties.words[i].text" disabled /></label>
-                <label><span>Direction</span> <select v-model="gameProperties.words[i].direction" v-on:change="updatePuzzle"><option v-for="(direction, key, d) in directionOptions" :key="'direction-'+d.toString()" :value="direction">{{key}}</option></select></label>
-                <label><span>Column</span> <input type="number" v-model="gameProperties.words[i].column" v-on:change="updatePuzzle" /></label>
-                <label><span>Row</span> <input type="number" v-model="gameProperties.words[i].row" v-on:change="updatePuzzle" /></label>
+                <label><span>Direction</span> <select v-model="gameProperties.words[i].direction" v-on:change="updatePuzzle(i, true)"><option v-for="(direction, key, d) in directionOptions" :key="'direction-'+d.toString()" :value="direction">{{key}}</option></select></label>
+                <label><span>Column</span> <input type="number" v-model="gameProperties.words[i].column" v-on:change="updatePuzzle(i)" /></label>
+                <label><span>Row</span> <input type="number" v-model="gameProperties.words[i].row" v-on:change="updatePuzzle(i)" /></label>
                 <button v-on:click="removeWord(i)">DELETE</button>
             </li>
             <li>
@@ -120,24 +120,65 @@ export default {
             this.gameProperties.words.push({text: word, id: id, direction: Directions.ACROSS, row: 0, column: 0});
             this.updatePuzzle();
         },
-        updatePuzzle () {
-            this.gameProperties.structureErrors = [];
-            const stru = createCrossword(this.gameProperties.rows, this.gameProperties.columns, this.gameProperties.words);
-            console.log(stru);
-            if(stru){
-                this.gameProperties.structrue = [];
-                setTimeout(() => {
-                    this.gameProperties.structrue = stru;
-                }, 100);
+        updatePuzzle (index, directionChange) {
+            let isValidUpdate = true;
+            if(index != undefined){
+                const maxPositions = this.getMinumumRowColumn(this.gameProperties.words[index]);
+                console.log(maxPositions);
+                if(this.gameProperties.words[index].row > maxPositions.row){
+                    console.log('a');
+                    if(!directionChange){
+                        this.gameProperties.words[index].row = maxPositions.row;
+                    }
+                    isValidUpdate = false;
+                }
+                if(this.gameProperties.words[index].column > maxPositions.column){
+                    console.log('b');
+                    if(!directionChange){
+                        this.gameProperties.words[index].column = maxPositions.column;
+                    }
+                    isValidUpdate = false;
+                }
+                if(this.gameProperties.words[index].row < 0){
+                    console.log('c');
+                    if(!directionChange){
+                        this.gameProperties.words[index].row = 0;
+                    }
+                    isValidUpdate = false;
+                }
+                if(this.gameProperties.words[index].column < 0){
+                    console.log('d');
+                    if(!directionChange){
+                        this.gameProperties.words[index].column = 0;
+                    }
+                    isValidUpdate = false;
+                }
+                if(!isValidUpdate && directionChange){
+                    this.gameProperties.words[index].direction = this.gameProperties.words[index].direction == Directions.ACROSS ? Directions.DOWN : Directions.ACROSS;
+                }
+            }
+            if(isValidUpdate){
+                this.gameProperties.structureErrors = [];
+                const stru = createCrossword(this.gameProperties.rows, this.gameProperties.columns, this.gameProperties.words);
+                console.log(stru);
+                if(stru){
+                    this.gameProperties.structrue = [];
+                    setTimeout(() => {
+                        this.gameProperties.structrue = stru;
+                    }, 100);
+                }
+                else{
+                    setTimeout(() => {
+                        this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, []));
+                        for(let i = 0; i < this.gameProperties.words.length; i++){
+                            this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, [this.gameProperties.words[i]]));
+                        }
+                        this.gameProperties.errors.collisions = this.getCollisions();
+                    }, 100);
+                }
             }
             else{
-                setTimeout(() => {
-                    this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, []));
-                    for(let i = 0; i < this.gameProperties.words.length; i++){
-                        this.gameProperties.structureErrors.push(createCrossword(this.gameProperties.rows, this.gameProperties.columns, [this.gameProperties.words[i]]));
-                    }
-                    this.gameProperties.errors.collisions = this.getCollisions();
-                }, 100);
+                this.showSizeLimitationError();
             }
         },
         getCollisions () {
@@ -160,6 +201,11 @@ export default {
             }
             return cells;
         },
+        getMinumumRowColumn (wordData) {
+            const maxRow = wordData.direction == Directions.DOWN ? this.gameProperties.rows - wordData.text.split('').length : this.gameProperties.rows;
+            const maxColumn = wordData.direction == Directions.ACROSS ? this.gameProperties.columns - wordData.text.split('').length : this.gameProperties.columns;
+            return {row: maxRow, column: maxColumn};
+        },
         removeWord (index) {
             this.gameProperties.words.splice(index, 1);
             this.updatePuzzle();
@@ -173,6 +219,9 @@ export default {
             }
             console.log(puzzleLink);
             return puzzleLink;
+        },
+        showSizeLimitationError () {
+            alert('does not fit on board');
         }
     },
     mounted () {
