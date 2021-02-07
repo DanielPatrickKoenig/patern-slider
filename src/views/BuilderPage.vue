@@ -71,6 +71,7 @@ import {loadDictionarySection} from '../utils/Dictionary.js';
 import {createCrossword, Directions} from '../utils/GameLogic.js';
 // import {flatten} from '../utils/Utilities.js';
 import PuzzlePreview from '../components/PuzzlePreview.vue';
+const startSize = 7;
 export default {
     components:{
         PuzzlePreview
@@ -86,8 +87,12 @@ export default {
             directionOptions: Directions,
             gameProperties: {
                 words: [],
-                columns: 7,
-                rows: 7,
+                columns: startSize,
+                rows: startSize,
+                unconfirmedSize: {
+                    columns: startSize,
+                    rows: startSize
+                },
                 structrue: [],
                 structureErrors: [],
                 errors: {
@@ -120,10 +125,10 @@ export default {
             this.gameProperties.words.push({text: word, id: id, direction: Directions.ACROSS, row: 0, column: 0});
             this.updatePuzzle();
         },
-        updatePuzzle (index, directionChange) {
+        updatePuzzle (index = -1, directionChange = false) {
             let isValidUpdate = true;
-            if(index != undefined){
-                const maxPositions = this.getMinumumRowColumn(this.gameProperties.words[index]);
+            if(index > -1){
+                const maxPositions = this.getMaxumumRowColumn(this.gameProperties.words[index]);
                 console.log(maxPositions);
                 if(this.gameProperties.words[index].row > maxPositions.row){
                     console.log('a');
@@ -157,8 +162,21 @@ export default {
                     this.gameProperties.words[index].direction = this.gameProperties.words[index].direction == Directions.ACROSS ? Directions.DOWN : Directions.ACROSS;
                 }
             }
+            else{
+                const minSize = this.getMinimumGridSize();
+                if(this.gameProperties.rows < minSize.rows){
+                    this.gameProperties.rows = this.gameProperties.unconfirmedSize.rows;
+                    isValidUpdate = false;
+                }
+                if(this.gameProperties.columns < minSize.columns){
+                    this.gameProperties.columns = this.gameProperties.unconfirmedSize.columns;
+                    isValidUpdate = false;
+                }
+            }
             if(isValidUpdate){
                 this.gameProperties.structureErrors = [];
+                this.gameProperties.unconfirmedSize.rows = this.gameProperties.rows;
+                this.gameProperties.unconfirmedSize.columns = this.gameProperties.columns;
                 const stru = createCrossword(this.gameProperties.rows, this.gameProperties.columns, this.gameProperties.words);
                 console.log(stru);
                 if(stru){
@@ -201,10 +219,31 @@ export default {
             }
             return cells;
         },
-        getMinumumRowColumn (wordData) {
+        getMaxumumRowColumn (wordData) {
             const maxRow = wordData.direction == Directions.DOWN ? this.gameProperties.rows - wordData.text.split('').length : this.gameProperties.rows;
             const maxColumn = wordData.direction == Directions.ACROSS ? this.gameProperties.columns - wordData.text.split('').length : this.gameProperties.columns;
             return {row: maxRow, column: maxColumn};
+        },
+        getMinimumGridSize () {
+            let minSize = {rows: 3, columns: 3};
+            for(let i = 0; i < this.gameProperties.words.length; i++) {
+                let prop = '';
+                switch(this.gameProperties.words[i].direction){
+                    case Directions.ACROSS:{
+                        prop = 'column';
+                        break;
+                    }
+                    case Directions.DOWN:{
+                        prop = 'row';
+                        break;
+                    }
+                }
+                let cellsRequired = Number(this.gameProperties.words[i][prop]) + Number(this.gameProperties.words[i].text.split('').length);
+                if(cellsRequired > minSize[`${prop}s`]){
+                    minSize[`${prop}s`] = cellsRequired;
+                }
+            }
+            return minSize;
         },
         removeWord (index) {
             this.gameProperties.words.splice(index, 1);
