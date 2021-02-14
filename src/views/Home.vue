@@ -9,7 +9,7 @@
 <script>
 // @ is an alias to /src
 import HelloWorld from '@/components/HelloWorld.vue'
-import {createCrossword, Directions} from '@/utils/GameLogic.js'
+// import {createCrossword, Directions} from '@/utils/GameLogic.js'
 import axios from 'axios';
 export default {
   name: 'Home',
@@ -17,12 +17,12 @@ export default {
     HelloWorld
   },
   methods: {
-    ccTest () {
-      console.log(createCrossword(7,8,[
-        {text: 'apple', direction: Directions.ACROSS, column: 1, row: 5},
-        {text: 'grape', direction: Directions.DOWN, column: 3, row: 2}
-      ]));
-    },
+    // ccTest () {
+    //   console.log(createCrossword(7,8,[
+    //     {text: 'apple', direction: Directions.ACROSS, column: 1, row: 5},
+    //     {text: 'grape', direction: Directions.DOWN, column: 3, row: 2}
+    //   ]));
+    // },
     async loadTest () {
       let output = {};
       await axios.get('dictionary.csv').then((result) => {
@@ -33,7 +33,7 @@ export default {
           output[word.split('')[0].toUpperCase() + (i.toString())] = {word: word, defenition: fullList[i].split('","')[2]};
         }
       });
-      console.log(JSON.stringify(output));
+      // console.log(JSON.stringify(output));
       return output;
     }
   }

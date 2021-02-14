@@ -131,28 +131,28 @@ export default {
                 const maxPositions = this.getMaxumumRowColumn(this.gameProperties.words[index]);
                 console.log(maxPositions);
                 if(this.gameProperties.words[index].row > maxPositions.row){
-                    console.log('a');
+                    // console.log('a');
                     if(!directionChange){
                         this.gameProperties.words[index].row = maxPositions.row;
                     }
                     isValidUpdate = false;
                 }
                 if(this.gameProperties.words[index].column > maxPositions.column){
-                    console.log('b');
+                    // console.log('b');
                     if(!directionChange){
                         this.gameProperties.words[index].column = maxPositions.column;
                     }
                     isValidUpdate = false;
                 }
                 if(this.gameProperties.words[index].row < 0){
-                    console.log('c');
+                    // console.log('c');
                     if(!directionChange){
                         this.gameProperties.words[index].row = 0;
                     }
                     isValidUpdate = false;
                 }
                 if(this.gameProperties.words[index].column < 0){
-                    console.log('d');
+                    // console.log('d');
                     if(!directionChange){
                         this.gameProperties.words[index].column = 0;
                     }
@@ -165,20 +165,20 @@ export default {
             else{
                 const minSize = this.getMinimumGridSize();
                 if(this.gameProperties.rows < minSize.rows){
-                    this.gameProperties.rows = this.gameProperties.unconfirmedSize.rows;
+                    this.gameProperties.rows = Number(this.gameProperties.unconfirmedSize.rows);
                     isValidUpdate = false;
                 }
                 if(this.gameProperties.columns < minSize.columns){
-                    this.gameProperties.columns = this.gameProperties.unconfirmedSize.columns;
+                    this.gameProperties.columns = Number(this.gameProperties.unconfirmedSize.columns);
                     isValidUpdate = false;
                 }
             }
             if(isValidUpdate){
                 this.gameProperties.structureErrors = [];
-                this.gameProperties.unconfirmedSize.rows = this.gameProperties.rows;
-                this.gameProperties.unconfirmedSize.columns = this.gameProperties.columns;
+                this.gameProperties.unconfirmedSize.rows = Number(this.gameProperties.rows);
+                this.gameProperties.unconfirmedSize.columns = Number(this.gameProperties.columns);
                 const stru = createCrossword(this.gameProperties.rows, this.gameProperties.columns, this.gameProperties.words);
-                console.log(stru);
+                // console.log(stru);
                 if(stru){
                     this.gameProperties.structrue = [];
                     setTimeout(() => {
@@ -220,8 +220,8 @@ export default {
             return cells;
         },
         getMaxumumRowColumn (wordData) {
-            const maxRow = wordData.direction == Directions.DOWN ? this.gameProperties.rows - wordData.text.split('').length : this.gameProperties.rows;
-            const maxColumn = wordData.direction == Directions.ACROSS ? this.gameProperties.columns - wordData.text.split('').length : this.gameProperties.columns;
+            const maxRow = wordData.direction == Directions.DOWN ? Number(this.gameProperties.rows - wordData.text.split('').length) : Number(this.gameProperties.rows);
+            const maxColumn = wordData.direction == Directions.ACROSS ? Number(this.gameProperties.columns - wordData.text.split('').length) : Number(this.gameProperties.columns);
             return {row: maxRow, column: maxColumn};
         },
         getMinimumGridSize () {
@@ -250,7 +250,7 @@ export default {
             this.updatePuzzle();
         },
         createPuzzleLink () {
-            console.log('create puzzle link');
+            // console.log('create puzzle link');
             // 14,12,A15700-0-5-1,G7712-1-2-3
             let puzzleLink = `${this.gameProperties.rows},${this.gameProperties.columns}`;
             for (let i = 0; i < this.gameProperties.words.length; i++) {
