@@ -5,7 +5,20 @@
             :pattern="selectedPattern" 
             :overlay="selectedOverlay" 
             :clues="clues"
+            :highlight="highlightClue"
+            v-on:clue-selected="showClue"
         />
+        <div v-if="selectedClue">
+            <a v-on:click="closeClue">Close</a>
+            <div v-if="selectedClue.across">
+                <h2>Across</h2>
+                <p>{{selectedClue.across.defenition}}</p>
+             </div>
+             <div v-if="selectedClue.down">
+                <h2>Down</h2>
+                <p>{{selectedClue.down.defenition}}</p>
+             </div>
+        </div>
         <div v-if="selectedPattern">
             <h2>Across</h2>
             <ul>
@@ -56,7 +69,9 @@ export default {
             selectedPattern: null,
             selectedOverlay: null,
             dictionary: {},
-            clues: []
+            clues: [],
+            selectedClue: null,
+            highlightClue: false
         }
     },
     methods: {
@@ -119,7 +134,16 @@ export default {
                 }
             }
             return index;
-        }
+        },
+        showClue (e) {
+            console.log(e);
+            this.highlightClue = true;
+            this.selectedClue = e;
+        },
+        closeClue () {
+            this.highlightClue = false;
+            this.selectedClue = null;
+        } 
     },
     mounted () {
         const gameDataString = getParameterByName('game');
