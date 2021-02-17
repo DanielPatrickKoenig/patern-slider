@@ -11,7 +11,8 @@ import {reshape} from '../utils/Utilities.js';
 export default {
     props:{
         pattern: Array,
-        overlay: Object
+        overlay: Object,
+        clues: Array
     },
     data () {
         return {
@@ -195,6 +196,17 @@ export default {
                 h++;
             }
             v++;
+        }
+        for(let i = 0; i < this.clues.length; i++){
+            const sprite = this.utils.sprite();
+            const text = this.utils.text(this.clues[i].number.toString(), {fontSize: space * .3});
+            text.x = space * .2;
+            text.y = space * .2;
+            text.anchor.set(0.5);
+            sprite.addChild(text);
+            sprite.x = this.originPoint.x + (space*this.clues[i].column);
+            sprite.y = this.originPoint.y + (space*this.clues[i].row);
+            this.instance.getApp().stage.addChild(sprite);
         }
         
     }
