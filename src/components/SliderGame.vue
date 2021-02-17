@@ -12,7 +12,8 @@ export default {
     props:{
         pattern: Array,
         overlay: Object,
-        clues: Array
+        clues: Array,
+        highlight: Boolean
     },
     data () {
         return {
@@ -33,7 +34,20 @@ export default {
             pieces: [],
             originPoint: {x: 50, y: 50},
             boardSize: {width: 500, height: 500},
-            boardBorder: 50
+            boardBorder: 50,
+            downOrigin: {x: 0, y: 0},
+            minimumMoveDistance: 0,
+            moving: false,
+            tappedCell: {row: -1, column: -1},
+            lastTapped: {row: -1, column: -1},
+            highLighter: null
+        }
+    },
+    watch: {
+        highlight () {
+            if(!this.highlight){
+                this.highLighter.visible = false;
+            }
         }
     },
     methods: {
@@ -78,6 +92,29 @@ export default {
                 userPattern.push(this.pieces[i].status);
             }
             return reshape(userPattern, this.pattern[0].length);
+        },
+        getRowColumnFromXY(x, y, space, origin){
+            let h = 0;
+            let v = 0;
+            let rc = {row: -1, column: -1};
+            for(let i = 0; i < this.structure.length; i++){
+                h = 0;
+                for(let j = 0; j < this.structure[i].length; j++){
+                    // const tlAddOn = this.structure.length > 7 || this.structure[0].length > 7 ? space : 0;
+                    // const brAddOn = this.structure.length > 7 || this.structure[0].length > 7 ? space * 2 : space;
+                    const tlAddOn = this.structure[0].length > 11 ? space : space * .5;
+                    const brAddOn = this.structure[0].length > 11 ? space * 2 : space * 1.5;
+                    const tl = {x: (space * h) + origin.x + tlAddOn, y: (space * v) + origin.y + tlAddOn};
+                    const br = {x: (space * h) + origin.x + brAddOn, y: (space * v) + origin.y + brAddOn};
+                    if(x > tl.x && x < br.x && y > tl.y && y < br.y){
+                        rc.row = v;
+                        rc.column = h;
+                    }
+                    h++;
+                }
+                v++;
+            }
+            return rc;
         }
     },
     mounted () {
@@ -89,6 +126,9 @@ export default {
         this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space);
         const puzzleBG = this.draw.rect({fill: 0x000000, fillOpacity: .35, strokeWidth: 0, strokeOpacity: 0, stroke: 0x000000, width: this.overlay.columns * space, height: this.overlay.rows * space, x: this.originPoint.x, y: this.originPoint.y});
         this.instance.getApp().stage.addChild(puzzleBG);
+        this.highLighter = this.draw.rect({fill: 0x000000, fillOpacity: 0, strokeWidth: 2, strokeOpacity: 1, stroke: 0xcc0000, width: space, height: space, x: 0, y: 0});
+        this.instance.getApp().stage.addChild(this.highLighter);
+        this.highLighter.visible = false;
         for(let i = 0; i < this.overlay.words.length; i++){
             const wordLength = this.overlay.words[i].text.length;
             let move = {x: 0, y: 0};
@@ -141,14 +181,19 @@ export default {
                 this.instance.getApp().stage.addChild(sprite);
                 this.action.down(sprite, (e) => {
                     this.dragger = sprite;
+                    this.downOrigin = e;
                     this.offset = {x: e.x - sprite.x, y: e.y - sprite.y};
                     this.dragCycles = 0;
                     this.dragStart = e;
                     this.dragDirection = null;
+                    this.moving = false;
+                    this.minimumMoveDistance = space / 2;
+                    this.tappedCell = this.getRowColumnFromXY(e.x, e.y, space, this.offset);
                 });
                 this.action.move(sprite, (e) => {
-                    
-                    if(this.dragger){
+                    const canMove = Math.abs(this.downOrigin.x - e.x) > this.minimumMoveDistance || Math.abs(this.downOrigin.y - e.y) > this.minimumMoveDistance;
+                    if(this.dragger && (canMove || this.moving)){
+                        this.moving = true;
                         this.dragCycles++;
                         
                         if(this.dragCycles > this.dragCycleMax && !this.dragDirection){
@@ -189,6 +234,19 @@ export default {
                             full.visible = this.dragGroup[i].status == 1 || this.dragGroup[i].status != ' ';
                         }
                     }
+                    if(!this.moving){
+                        // alert('tap')
+
+                        for(let i = 0; i < this.clues.length; i++){
+                            if(this.tappedCell.row == this.clues[i].row && this.tappedCell.column == this.clues[i].column){
+                                this.lastTapped = {row: this.tappedCell.row, column: this.tappedCell.column};
+                                this.highLighter.visible = true;
+                                this.$emit('clue-selected', this.clues[i]);
+                            }
+                        }
+                        this.highLighter.x = this.originPoint.x + (space * this.lastTapped.column);
+                        this.highLighter.y = this.originPoint.y + (space * this.lastTapped.row);
+                    }
                     // console.log(this.renderStructure());
                     // console.log(this.pattern);
                     console.log(checkMatch(this.renderStructure(), this.pattern));
@@ -208,6 +266,9 @@ export default {
             sprite.y = this.originPoint.y + (space*this.clues[i].row);
             this.instance.getApp().stage.addChild(sprite);
         }
+        this.instance.getApp().stage.addChild(this.highLighter);
+        this.highLighter.visible = false;
+        
         
     }
 }
