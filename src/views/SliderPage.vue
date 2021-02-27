@@ -6,16 +6,22 @@
             :overlay="selectedOverlay" 
             :clues="clues"
             :highlight="highlightClue"
+            :block="wordBlock"
             v-on:clue-selected="showClue"
+            v-on:word-solved="wordSolved"
         />
         <div v-if="selectedClue">
             <a v-on:click="closeClue">Close</a>
             <div v-if="selectedClue.across">
                 <h2>Across</h2>
+                <p>{{selectedClue.across.text.length}} letters</p>
+                <p v-if="selectedClue.across.solved">{{selectedClue.across.text}}</p>
                 <p>{{selectedClue.across.defenition}}</p>
              </div>
              <div v-if="selectedClue.down">
                 <h2>Down</h2>
+                <p>{{selectedClue.down.text.length}} letters</p>
+                <p v-if="selectedClue.down.solved">{{selectedClue.down.text}}</p>
                 <p>{{selectedClue.down.defenition}}</p>
              </div>
         </div>
@@ -26,9 +32,12 @@
                     v-for="(clue, i) in clues" 
                     :key="'across-'+i.toString()"
                     v-show="clue.across"
+                    v-on:click="setBlock(clue, directions.ACROSS)"
                 >
                     <div v-if="clue.across">
                         <span>{{clue.number}}</span>
+                        <span>{{clue.across.text.length}} letters</span>
+                        <span v-if="clue.across.solved">{{clue.across.text}}</span>
                         <span>{{clue.across.defenition}}</span>
                     </div>
                 </li>
@@ -39,9 +48,12 @@
                     v-for="(clue, i) in clues" 
                     :key="'down-'+i.toString()"
                     v-show="clue.down"
+                    v-on:click="setBlock(clue, directions.DOWN)"
                 >
                     <div v-if="clue.down">
                         <span>{{clue.number}}</span>
+                        <span>{{clue.down.text.length}} letters</span>
+                        <span v-if="clue.down.solved">{{clue.down.text}}</span>
                         <span>{{clue.down.defenition}}</span>
                     </div>
                 </li>
@@ -71,10 +83,23 @@ export default {
             dictionary: {},
             clues: [],
             selectedClue: null,
-            highlightClue: false
+            highlightClue: false,
+            wordBlock: {visible: false},
+            directions: Directions
         }
     },
     methods: {
+        setBlock (clue, direction) {
+
+            this.wordBlock = {
+                visible: true,
+                direction,
+                row: clue.row,
+                column: clue.column,
+                length: direction == Directions.ACROSS ? clue.across.text.length : clue.down.text.length
+            }
+            console.log(this.wordBlock);
+        },
         async setPattern (pattern) {
             this.selectedOverlay = pattern;
             for(let i = 0; i < pattern.words.length; i++) {
@@ -95,9 +120,10 @@ export default {
         },
         createClues () {
             let num = 1;
+            this.clues = [];
             for(let i = 0; i < this.selectedOverlay.words.length; i++){
                 console.log(this.selectedOverlay.words[i].text);
-                let data = {text: this.selectedOverlay.words[i].text, defenition: this.selectedOverlay.words[i].defenition};
+                let data = {text: this.selectedOverlay.words[i].text, defenition: this.selectedOverlay.words[i].defenition, solved: this.selectedOverlay.words[i].solved ? true : false};
                 let clue = null;
                 const clueIndex = this.getWordIndex(this.selectedOverlay.words[i].row, this.selectedOverlay.words[i].column, this.selectedOverlay.words[i].direction);
                 console.log(clueIndex);
@@ -106,7 +132,7 @@ export default {
                         number: num,
                         row: this.selectedOverlay.words[i].row,
                         column: this.selectedOverlay.words[i].column,
-                        direction: this.selectedOverlay.words[i].direction
+                        direction: this.selectedOverlay.words[i].direction,
                     };
                     this.clues.push(clue);
                     num++;
@@ -143,7 +169,12 @@ export default {
         closeClue () {
             this.highlightClue = false;
             this.selectedClue = null;
-        } 
+        },
+        wordSolved (e) {
+            this.selectedOverlay.words[e.index].solved = true;
+            this.createClues();
+            this.$forceUpdate();
+        }
     },
     mounted () {
         const gameDataString = getParameterByName('game');
