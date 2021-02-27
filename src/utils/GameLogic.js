@@ -100,6 +100,26 @@ function checkMatch(targetPattern, testPesstern){
     }
     return isMatch;
 }
+function wordMatch (word, pattern) {
+    let letters = word.text.toLowerCase().split('');
+    let position = {row: word.row, column: word.column};
+    let matchCount = 0;
+    let wordCells = [];
+    for(let i = 0; i < letters.length; i++){
+        if(pattern[position.row][position.column].toLowerCase() == letters[i]){
+            matchCount++;
+        }
+        if(word.direction == Directions.ACROSS){
+            position.column += 1;
+        }
+        if(word.direction == Directions.DOWN){
+            position.row += 1;
+        }
+        wordCells.push({row: position.row, column: position.column});
+    }
+    const match = matchCount == letters.length;
+    return { match, wordCells }
+}
 function randomizeStructure(structure){
     let oneDStrucure = flatten(structure);
     // for(let i = 0; i < structure.length; i++){
@@ -172,4 +192,4 @@ function createCrossword(rows, columns, wordList){
     }
     return valid ? grid : valid;
 }
-export {setupGame, getPiecesByProperty, structures, randomizeStructure, checkMatch, createCrossword, Directions};
+export {setupGame, getPiecesByProperty, structures, randomizeStructure, checkMatch, createCrossword, Directions, wordMatch};

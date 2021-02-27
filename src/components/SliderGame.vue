@@ -6,14 +6,16 @@
 
 <script>
 import {PixiInstance, PixiDraw, PixiUtils, PixiAction} from '../utils/PixiManager.js';
-import {getPiecesByProperty, randomizeStructure, checkMatch, Directions} from '../utils/GameLogic.js';
+import {getPiecesByProperty, randomizeStructure, checkMatch, Directions, wordMatch} from '../utils/GameLogic.js';
 import {reshape} from '../utils/Utilities.js';
 export default {
     props:{
         pattern: Array,
         overlay: Object,
         clues: Array,
-        highlight: Boolean
+        highlight: Boolean,
+        block: Object,
+        clickable: Boolean,
     },
     data () {
         return {
@@ -40,7 +42,8 @@ export default {
             moving: false,
             tappedCell: {row: -1, column: -1},
             lastTapped: {row: -1, column: -1},
-            highLighter: null
+            highLighter: null,
+            wordHighlighter: null
         }
     },
     watch: {
@@ -48,7 +51,11 @@ export default {
             if(!this.highlight){
                 this.highLighter.visible = false;
             }
-        }
+        },
+        block: {
+            handler: 'updateBlock',
+            deep: true,
+        },
     },
     methods: {
         // snap(){
@@ -56,6 +63,28 @@ export default {
 
         //     }
         // },
+        updateBlock () {
+            console.log('block-updated');
+            if(this.wordHighlighter){
+                this.instance.getApp().stage.removeChild(this.wordHighlighter);
+            }
+            
+            if(this.block.visible){
+                const space = (this.boardSize.width - (this.boardBorder * 2)) / this.structure[0].length;
+                this.wordHighlighter = this.draw.rect({
+                    fill: 0x000000, 
+                    fillOpacity: 0, 
+                    strokeWidth: 4, 
+                    strokeOpacity: 1, 
+                    stroke: 0xcc0000, 
+                    width: this.block.direction == Directions.DOWN ? space : (this.block.length) * space,
+                    height: this.block.direction == Directions.ACROSS ? space : (this.block.length) * space,
+                    x: this.originPoint.x + (this.block.column * space), 
+                    y: this.originPoint.y + (this.block.row * space), 
+                });
+                this.instance.getApp().stage.addChild(this.wordHighlighter);
+            }
+        },
         moveGroup (property, e, space) {
             // const group = getPiecesByProperty(this.pieces, direction, this.dragger[direction]);
             const groupSize = property == 'x' ? this.pattern[0].length : this.pattern.length;
@@ -234,7 +263,7 @@ export default {
                             full.visible = this.dragGroup[i].status == 1 || this.dragGroup[i].status != ' ';
                         }
                     }
-                    if(!this.moving){
+                    if(!this.moving && this.clickable){
                         // alert('tap')
 
                         for(let i = 0; i < this.clues.length; i++){
@@ -249,7 +278,16 @@ export default {
                     }
                     // console.log(this.renderStructure());
                     // console.log(this.pattern);
-                    console.log(checkMatch(this.renderStructure(), this.pattern));
+                    const currentStructure = this.renderStructure();
+                    console.log(checkMatch(currentStructure, this.pattern));
+                    for(let i = 0; i < this.overlay.words.length; i++){
+                        const wordCheck = wordMatch(this.overlay.words[i], currentStructure);
+                        if(wordCheck.match){
+                            // animate solved word
+                            this.$emit('word-solved', {index: i, text: this.overlay.words[i].text})
+                        }
+                    }
+                    
                 });
                 h++;
             }
