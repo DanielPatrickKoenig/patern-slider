@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="board">
       <canvas ref="pixiTarget" style="max-width:100%;" />
   </div>
 </template>
@@ -34,9 +34,9 @@ export default {
             startCenters: [],
             offset: {x: 0, y: 0},
             pieces: [],
-            originPoint: {x: 50, y: 50},
+            originPoint: {x: 5, y: 50},
             boardSize: {width: 500, height: 500},
-            boardBorder: 50,
+            boardBorder: 5,
             downOrigin: {x: 0, y: 0},
             minimumMoveDistance: 0,
             moving: false,
