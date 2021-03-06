@@ -10,7 +10,7 @@
             v-on:clue-selected="showClue"
             v-on:word-solved="wordSolved"
         />
-        <div v-if="selectedClue">
+        <!-- <div v-if="selectedClue">
             <a v-on:click="closeClue">Close</a>
             <div v-if="selectedClue.across">
                 <h2>Across</h2>
@@ -24,42 +24,62 @@
                 <p v-if="selectedClue.down.solved">{{selectedClue.down.text}}</p>
                 <p>{{selectedClue.down.defenition}}</p>
              </div>
+        </div> -->
+        <div class="clue-selector">
+            <div 
+                v-if="selectedPattern"
+                class="clue-lists"
+            >
+                <h2>Across</h2>
+                <ul>
+                    <li 
+                        v-for="(clue, i) in clues" 
+                        :key="'across-'+i.toString()"
+                        class="clue-number"
+                        v-show="clue.across"
+                        v-on:click="setBlock(clue, directions.ACROSS)"
+                    >
+                        <span v-if="clue.across">
+                            <span :class="{'solved': clue.across.solved}">
+                                {{clue.number}}
+                            </span>
+                            
+                        </span>
+                    </li>
+                </ul>
+                <h2>Down</h2>
+                <ul>
+                    <li 
+                        v-for="(clue, i) in clues" 
+                        :key="'down-'+i.toString()"
+                        class="clue-number"
+                        v-show="clue.down"
+                        v-on:click="setBlock(clue, directions.DOWN)"
+                    >
+                        <span v-if="clue.down">
+                            <span :class="{'solved': clue.down.solved}">
+                                {{clue.number}}
+                            </span>
+                            
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="clue-display">
+                <div v-if="selectedClue">
+                    <a 
+                        v-on:click="closeClue"
+                        class="close-clue"
+                    >
+                        X
+                    </a>
+                    <h2>{{selectedClueName}}</h2>
+                    <p>{{selectedClue.text.length}} letters</p>
+                    <p v-if="selectedClue.solved">{{selectedClue.text}}</p>
+                    <p>{{selectedClue.defenition}}</p>
+                </div>
+            </div>
         </div>
-        <div v-if="selectedPattern">
-            <h2>Across</h2>
-            <ul>
-                <li 
-                    v-for="(clue, i) in clues" 
-                    :key="'across-'+i.toString()"
-                    v-show="clue.across"
-                    v-on:click="setBlock(clue, directions.ACROSS)"
-                >
-                    <div v-if="clue.across">
-                        <span>{{clue.number}}</span>
-                        <span>{{clue.across.text.length}} letters</span>
-                        <span v-if="clue.across.solved">{{clue.across.text}}</span>
-                        <span>{{clue.across.defenition}}</span>
-                    </div>
-                </li>
-            </ul>
-            <h2>Down</h2>
-            <ul>
-                <li 
-                    v-for="(clue, i) in clues" 
-                    :key="'down-'+i.toString()"
-                    v-show="clue.down"
-                    v-on:click="setBlock(clue, directions.DOWN)"
-                >
-                    <div v-if="clue.down">
-                        <span>{{clue.number}}</span>
-                        <span>{{clue.down.text.length}} letters</span>
-                        <span v-if="clue.down.solved">{{clue.down.text}}</span>
-                        <span>{{clue.down.defenition}}</span>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        
 
     </div>
 </template>
@@ -83,6 +103,7 @@ export default {
             dictionary: {},
             clues: [],
             selectedClue: null,
+            selectedClueName: '',
             highlightClue: false,
             wordBlock: {visible: false},
             directions: Directions
@@ -98,6 +119,8 @@ export default {
                 column: clue.column,
                 length: direction == Directions.ACROSS ? clue.across.text.length : clue.down.text.length
             }
+            this.selectedClueName = `${clue.number} ${direction == Directions.ACROSS ? 'accross' : 'down'}`;
+            this.showClue(clue, direction == Directions.ACROSS);
             console.log(this.wordBlock);
         },
         async setPattern (pattern) {
@@ -161,13 +184,13 @@ export default {
             }
             return index;
         },
-        showClue (e) {
-            console.log(e);
-            this.highlightClue = true;
-            this.selectedClue = e;
+        showClue (clue, across) {
+            // this.highlightClue = true;
+            this.selectedClue = across ? clue.across : clue.down;
         },
         closeClue () {
-            this.highlightClue = false;
+            // this.highlightClue = false;
+            this.wordBlock = {visible: false};
             this.selectedClue = null;
         },
         wordSolved (e) {
