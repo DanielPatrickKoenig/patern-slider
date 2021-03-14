@@ -144,6 +144,20 @@ export default {
                 v++;
             }
             return rc;
+        },
+        createBackgroundLines (count) {
+            let lineSpace = (((this.boardSize.width) - (this.boardBorder)) / count) * 2;
+            const sprite = this.utils.sprite();
+            const lineContainer = this.utils.sprite();
+            for(let i = 0; i < count; i++) {
+                let line = this.draw.line([{x: this.originPoint.x + (lineSpace * i) - (this.boardSize.width), y: this.originPoint.y - (this.boardSize.height)}, {x: this.originPoint.x + (lineSpace * i) - (this.boardSize.width), y: this.originPoint.y + (this.boardSize.height * 2) - (this.boardSize.height)}], {strokeOpacity: .3, strokeWidth: 1, stroke: 0x000000});
+                lineContainer.addChild(line);
+            }
+            lineContainer.rotation = 45 * (Math.PI / 180);
+            lineContainer.y = this.boardSize.height / 2;
+            lineContainer.x = this.boardSize.height / 2;
+            sprite.addChild(lineContainer);
+            return sprite;
         }
     },
     mounted () {
@@ -153,7 +167,8 @@ export default {
         let inset = 3;
         const space = (this.boardSize.width - (this.boardBorder * 2)) / this.structure[0].length;
         this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space);
-        const puzzleBG = this.draw.rect({fill: 0x000000, fillOpacity: .35, strokeWidth: 0, strokeOpacity: 0, stroke: 0x000000, width: this.overlay.columns * space, height: this.overlay.rows * space, x: this.originPoint.x, y: this.originPoint.y});
+        this.instance.getApp().stage.addChild(this.createBackgroundLines(200));
+        const puzzleBG = this.draw.rect({fill: 0x000000, fillOpacity: 0, strokeWidth: 0, strokeOpacity: 0, stroke: 0x000000, width: this.overlay.columns * space, height: this.overlay.rows * space, x: this.originPoint.x, y: this.originPoint.y});
         this.instance.getApp().stage.addChild(puzzleBG);
         this.highLighter = this.draw.rect({fill: 0x000000, fillOpacity: 0, strokeWidth: 2, strokeOpacity: 1, stroke: 0xcc0000, width: space, height: space, x: 0, y: 0});
         this.instance.getApp().stage.addChild(this.highLighter);
@@ -190,7 +205,7 @@ export default {
                 // const color = this.structure[i][j] == 1 ? 0x00cc00 : 0xcc0000;
                 const empty = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(empty);
-                const full = this.draw.rect({fill: 0x00cc00, fillOpacity: .8, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
+                const full = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(full);
                 const text = this.utils.text(this.structure[i][j].toUpperCase(), {fontSize: space / 2});
                 text.x = space / 2;

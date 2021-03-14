@@ -49,6 +49,18 @@ function PixiDraw () {
         return g;
     }
 
+    this.line = function (points,  properties, graphic) {
+        let props = mapProperites(properties);
+        let g = graphic ? graphic : new PIXI.Graphics();
+        g.clear();
+        g.lineStyle(props.strokeWidth,props.stroke,props.strokeOpacity);
+        g.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            g.lineTo(points[i].x, points[i].y);
+        }
+        return g;
+    }
+
     this.circle = function (properties, graphic) {
         let props = mapProperites(properties);
         // console.log(props);
