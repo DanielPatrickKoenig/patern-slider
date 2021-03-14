@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {PixiInstance, PixiDraw, PixiUtils, PixiAction} from '../utils/PixiManager.js';
+import {PixiInstance, PixiDraw, PixiUtils, PixiAction, PixiImage} from '../utils/PixiManager.js';
 import {getPiecesByProperty, randomizeStructure, checkMatch, Directions, wordMatch} from '../utils/GameLogic.js';
 import {reshape} from '../utils/Utilities.js';
 export default {
@@ -21,6 +21,7 @@ export default {
         return {
             instance: {},
             draw: new PixiDraw(),
+            imager: new PixiImage(),
             structure: randomizeStructure(this.pattern),
             action: new PixiAction(),
             utils: new PixiUtils(),
@@ -43,7 +44,8 @@ export default {
             tappedCell: {row: -1, column: -1},
             lastTapped: {row: -1, column: -1},
             highLighter: null,
-            wordHighlighter: null
+            wordHighlighter: null,
+            tileImage: require('../../public/draggable-tile.png')
         }
     },
     watch: {
@@ -164,7 +166,7 @@ export default {
         this.instance = new PixiInstance(this.$refs.pixiTarget, this.boardSize.width, this.boardSize.height, true);
         let h = 0;
         let v = 0;
-        let inset = 3;
+        let inset = this.boardSize.width * .006;
         const space = (this.boardSize.width - (this.boardBorder * 2)) / this.structure[0].length;
         this.originPoint.y = (this.boardSize.height / 2) - ((this.structure.length / 2) * space);
         this.instance.getApp().stage.addChild(this.createBackgroundLines(200));
@@ -203,9 +205,21 @@ export default {
             for(let j = 0; j < this.structure[i].length; j++){
                 const sprite = this.utils.sprite();
                 // const color = this.structure[i][j] == 1 ? 0x00cc00 : 0xcc0000;
-                const empty = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
+                const empty = this.imager.image(this.tileImage);
+                empty.x = inset;
+                empty.y = inset;
+                empty.width = space - (inset * 2);
+                empty.height = space - (inset * 2);
+                empty.alpha = .2;
+                // const empty = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(empty);
-                const full = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
+                const full = this.imager.image(this.tileImage);
+                full.x = inset;
+                full.y = inset;
+                full.width = space - (inset * 2);
+                full.height = space - (inset * 2);
+                full.alpha = .2;
+                // const full = this.draw.rect({fill: 0x000000, fillOpacity: .06, strokeWidth: 2, strokeOpacity: 0, stroke: 0xffffff, width: space - (inset * 2), height: space - (inset * 2), x: inset, y: inset});
                 sprite.addChild(full);
                 const text = this.utils.text(this.structure[i][j].toUpperCase(), {fontSize: space / 2});
                 text.x = space / 2;
