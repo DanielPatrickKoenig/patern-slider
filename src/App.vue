@@ -8,6 +8,6 @@
   </div>
 </template>
 
-<style lang="scss">
-@import "./scss/default.scss";
+<style lang="css">
+@import "./scss/partials/_vicky.css";
 </style>
