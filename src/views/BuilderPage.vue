@@ -1,17 +1,9 @@
 <template>
     <div class="builder-page">
-        <select class="letter-select" v-model="selectedLetter" v-on:change="loadLetter(selectedLetter)">
-            <option v-for="(letter, i) in letters" :key="'letter-option-'+i.toString()" :value="letter">{{letter}}</option>
-        </select>
-        <ul class="letter-list">
-            <li v-for="(letter, i) in letters" :key="'letter-'+i.toString()">
-                <a v-on:click="loadLetter(letter)">{{letter}}</a>
-            </li>
-        </ul>
         <div v-if="ready" class="search-ui">
-            <input v-model="searchTerm" type="text" v-on:keyup="searchResults" />
+            <input v-model="searchTerm" type="text" v-on:keyup="searchResults()" />
             <ul v-if="searchTerm != ''">
-                <li v-for="(result, key, i) in searchOutput" :key="'result-'+i.toString()">
+                <li v-for="(result, key, i) in searchOutput.limitted" :key="'result-'+i.toString()">
                     <ul>
                         <li>
                             {{result.word}}
@@ -27,10 +19,21 @@
                     </ul>
                 </li>
             </ul>
+            <div v-if="Object.keys(searchOutput.full).length > resultLimts.current">
+                <label>
+                    {{Object.keys(searchOutput.limitted).length}} / {{Object.keys(searchOutput.full).length}} results
+                </label>
+                <a
+                    v-if="Object.keys(searchOutput.full).length > resultLimts.current"
+                    v-on:click="showMore"
+                >
+                    Show More
+                </a>
+            </div>
+            <div v-else>
+                {{Object.keys(searchOutput.limitted).length}} Results
+            </div>
         </div>
-        <span v-if="ready">
-            {{Object.keys(this.dictionary).length}}
-        </span>
         <div 
             v-if="gameProperties.structureErrors.length > 0"
             class="puzzle-errors"
@@ -72,6 +75,7 @@ import {createCrossword, Directions} from '../utils/GameLogic.js';
 // import {flatten} from '../utils/Utilities.js';
 import PuzzlePreview from '../components/PuzzlePreview.vue';
 const startSize = 7;
+const initialBase = 100;
 export default {
     components:{
         PuzzlePreview
@@ -79,12 +83,18 @@ export default {
     data () {
         return {
             dictionary: {},
-            ready: false,
+            loadedDictionaries: {},
+            ready: true,
             searchTerm: '',
-            searchOutput: {},
+            searchOutput: {limitted: {}, full: {}},
             letters: ('abcdefghijklmnopqrstuvwxyz').split(''),
             selectedLetter: 'a',
             directionOptions: Directions,
+            resultLimts: {
+                current: initialBase,
+                base: initialBase,
+                moreIncrament: 50
+            },
             gameProperties: {
                 words: [],
                 columns: startSize,
@@ -103,23 +113,38 @@ export default {
         }
     },
     methods: {
-        searchResults () {
+        async searchResults (adding) {
             let output = {};
-            const keys = Object.keys(this.dictionary);
+            let fullOutput = {};
             if(this.searchTerm.length > 0){
+                if(!adding){
+                    this.resultLimts.current = initialBase;
+                }
+                const dictionaryLetter = this.searchTerm.slice(0, 1).toUpperCase();
+                this.dictionary = this.loadedDictionaries[dictionaryLetter] ? this.loadedDictionaries[dictionaryLetter] : await this.loadLetter(dictionaryLetter);
+                const keys = Object.keys(this.dictionary);
                 for(let i = 0; i < keys.length; i++){
                     if(this.dictionary[keys[i]].word.toLowerCase().indexOf(this.searchTerm.toLowerCase()) == 0){
-                        output[keys[i]] = this.dictionary[keys[i]];
+                        if(Object.keys(output).length < this.resultLimts.current){
+                            output[keys[i]] = this.dictionary[keys[i]];
+                        }
+                        fullOutput[keys[i]] = this.dictionary[keys[i]];
                     }
                 }
             }
-            this.searchOutput = output;
+            this.searchOutput = {limitted: output, full: fullOutput};
         },
         async loadLetter (letter) {
-            this.ready = false;
+            // this.ready = false;
             this.selectedLetter = letter;
-            this.dictionary = await loadDictionarySection(letter.toUpperCase()); 
-            this.ready = true;
+            const letterDictionary = await loadDictionarySection(letter.toUpperCase()); 
+            // this.ready = true;
+            this.loadedDictionaries[letter] = letterDictionary;
+            return letterDictionary;
+        },
+        showMore() {
+            this.resultLimts.current += this.resultLimts.moreIncrament;
+            this.searchResults(true);
         },
         addWord (word, id) {
             this.gameProperties.words.push({text: word, id: id, direction: Directions.ACROSS, row: 0, column: 0});
